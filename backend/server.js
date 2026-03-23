@@ -9,7 +9,7 @@ import { toFile } from "openai/uploads";
 import ffmpeg from "fluent-ffmpeg";
 import nodemailer from "nodemailer";
 ffmpeg.setFfmpegPath("C:\\Users\\Gaylo Follen\\Downloads\\ffmpeg-8.1-essentials_build\\ffmpeg-8.1-essentials_build\\bin\\ffmpeg.exe");
-
+ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
 dotenv.config();
 
 const app = express();
