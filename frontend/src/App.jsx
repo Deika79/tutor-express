@@ -64,7 +64,7 @@ function App() {
     const formData = new FormData();
     formData.append("audio", audioBlob, "audio.webm");
 
-    const res = await fetch("http://localhost:3001/upload", {
+    const res = await fetch("https://tutor-express-backend.onrender.com", {
       method: "POST",
       body: formData
     });
@@ -93,7 +93,7 @@ function App() {
 
     setEstado("📩 Enviando email...");
 
-    await fetch("http://localhost:3001/send-email", {
+    await fetch("https://tutor-express-backend.onrender.com", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
