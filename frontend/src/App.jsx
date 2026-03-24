@@ -61,29 +61,42 @@ function App() {
     setLoading(true);
     setEstado("⏳ Procesando tutoría...");
 
-    const formData = new FormData();
-    formData.append("audio", audioBlob, "audio.webm");
+    try {
+      const formData = new FormData();
+      formData.append("audio", audioBlob, "audio.webm");
 
-    const res = await fetch("https://tutor-express-backend.onrender.com", {
-      method: "POST",
-      body: formData
-    });
+      const res = await fetch(
+        "https://tutor-express-backend.onrender.com/upload",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
 
-    const blob = await res.blob();
+      if (!res.ok) {
+        throw new Error("Error en backend");
+      }
 
-    // convertir blob a texto para email
-    const text = await blob.text();
-    setResultadoTexto(text);
+      const blob = await res.blob();
 
-    // descargar
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "tutoria.txt";
-    a.click();
+      // convertir blob a texto para email
+      const text = await blob.text();
+      setResultadoTexto(text);
+
+      // descargar archivo
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tutoria.txt";
+      a.click();
+
+      setEstado("✅ Tutoría generada");
+    } catch (error) {
+      console.error(error);
+      setEstado("❌ Error procesando tutoría");
+    }
 
     setLoading(false);
-    setEstado("✅ Tutoría generada");
   };
 
   const enviarEmail = async () => {
@@ -93,18 +106,30 @@ function App() {
 
     setEstado("📩 Enviando email...");
 
-    await fetch("https://tutor-express-backend.onrender.com", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        email,
-        contenido: resultadoTexto
-      })
-    });
+    try {
+      const res = await fetch(
+        "https://tutor-express-backend.onrender.com/send-email",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email,
+            contenido: resultadoTexto
+          })
+        }
+      );
 
-    setEstado("✅ Email enviado");
+      if (!res.ok) {
+        throw new Error("Error enviando email");
+      }
+
+      setEstado("✅ Email enviado");
+    } catch (error) {
+      console.error(error);
+      setEstado("❌ Error enviando email");
+    }
   };
 
   return (
@@ -113,23 +138,29 @@ function App() {
       <img src="/banner.png" alt="Banner" className="banner" />
 
       <div className="controls">
-        <button className="btn record" onClick={startRecording} disabled={recording}>
+        <button
+          className="btn record"
+          onClick={startRecording}
+          disabled={recording}
+        >
           🔴 Grabar
         </button>
 
-        <button className="btn stop" onClick={stopRecording} disabled={!recording}>
+        <button
+          className="btn stop"
+          onClick={stopRecording}
+          disabled={!recording}
+        >
           ⏹️ Detener
         </button>
       </div>
 
-      {/* ⏱️ CONTADOR */}
       {recording && <p>⏱️ {tiempo}s grabando...</p>}
 
       <button className="btn process" onClick={enviarAudio}>
         🧠 Procesar tutoría
       </button>
 
-      {/* 📩 EMAIL */}
       <input
         type="email"
         placeholder="Introduce email"
@@ -142,7 +173,6 @@ function App() {
         📩 Enviar por email
       </button>
 
-      {/* 📢 ESTADO */}
       <p className="estado">{estado}</p>
 
       {loading && <p className="loading">⏳ Procesando...</p>}
